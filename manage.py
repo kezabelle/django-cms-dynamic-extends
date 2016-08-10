@@ -22,6 +22,10 @@ settings.configure(
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'django.middleware.security.SecurityMiddleware',
+        'cms.middleware.user.CurrentUserMiddleware',
+        'cms.middleware.page.CurrentPageMiddleware',
+        'cms.middleware.toolbar.ToolbarMiddleware',
+        'cms.middleware.language.LanguageCookieMiddleware',
     ),
     INSTALLED_APPS=(
         'django.contrib.staticfiles',  # better runserver
@@ -29,6 +33,11 @@ settings.configure(
         'django.contrib.sites',
         'django.contrib.sitemaps',
         'django.contrib.auth',
+        'cms',  # django CMS itself
+        'treebeard',  # utilities for implementing a tree
+        'menus',  # helper for model independent hierarchical website navigation
+        'sekizai',  # for JavaScript and CSS management
+        'djangocms_admin_style',
         'django.contrib.admin',
     ),
     DATABASES={
@@ -53,11 +62,20 @@ settings.configure(
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
             ],
         },
     }],
     SECURE_BROWSER_XSS_FILTER=True,
     SECURE_CONTENT_TYPE_NOSNIFF=True,
+    CMS_TEMPLATES=(
+        ('template_1.html', 'Template One'),
+        ('template_2.html', 'Template Two'),
+    ),
+    LANGUAGES=(
+        ('en-us', 'English'),
+    ),
 )
 def lazy_urls():
     # We make this lazy so that we can import stuff as necessary
@@ -66,7 +84,8 @@ def lazy_urls():
     from django.conf.urls import url, include
     from django.contrib import admin
     urlpatterns = [
-        url(r'^', include(admin.site.urls))
+        url(r'^admin/', include(admin.site.urls)),
+        url(r'^', include('cms.urls')),
     ]
     return urlpatterns
 from django.utils.functional import SimpleLazyObject
