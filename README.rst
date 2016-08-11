@@ -21,6 +21,7 @@ I think the minimal test case is::
 Try it out:
 
 - clone this project.
+- pip install django-cms
 - python manage.py migrate
 - python manage.py createsuperuser
 - python manage.py runserver
